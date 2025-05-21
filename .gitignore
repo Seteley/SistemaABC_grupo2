@@ -1,0 +1,11 @@
+# Ignorar todos los __pycache__ en cualquier carpeta
+__pycache__/
+
+# Ignorar archivos pyc generados por Python
+*.py[cod]
+
+# Virtualenv
+venv/
+.venv/
+.env/
+
