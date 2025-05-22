@@ -2,6 +2,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import RecursoActividadPage from "./pages/RecursoActividadPage";
 import ActividadObjetoPage from "./pages/ActividadObjetoPage";
 import CostoUnitarioPage from "./pages/CostoUnitarioPage";
+import InputTemplatePage from "./pages/InputTemplatePage";
 import { useState } from "react";
 
 const meses = [
@@ -51,10 +52,12 @@ function App() {
       <button onClick={() => navigate("/recurso-actividad")}>Recurso x Actividad</button>
       <button onClick={() => navigate("/actividad-objeto")}>Actividad x Objeto</button>
       <button onClick={() => navigate("/costo-unitario")}>Costo Unitario</button>
+      <button onClick={() => navigate("/input-template")}>Generar Plantilla</button>
       <Routes>
         <Route path="/recurso-actividad" element={<RecursoActividadPage periodo={periodo} autoFetch />} />
         <Route path="/actividad-objeto" element={<ActividadObjetoPage periodo={periodo} autoFetch />} />
         <Route path="/costo-unitario" element={<CostoUnitarioPage periodo={periodo} autoFetch />} />
+        <Route path="/input-template" element={<InputTemplatePage />} />
         <Route path="*" element={<div>Selecciona una opción</div>} />
       </Routes>
     </div>
