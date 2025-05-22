@@ -32,6 +32,20 @@ def plantilla_excel():
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df_recursos.to_excel(writer, index=False, sheet_name="Recursos")
         df_objetos.to_excel(writer, index=False, sheet_name="Objetos")
+
+        # Hoja 3: Objeto x Actividad
+        actividades = read_tabla("actividad")
+        objetos = read_tabla("objeto")
+        inductores = {i["codigo"]: i["nombre"] for i in read_tabla("inductor")}
+        # Construir DataFrame: filas=actividades, columnas=objetos
+        data = []
+        for act in actividades:
+            inductor_nombre = inductores.get(act.get("cod_inductor"), "") if act.get("cod_inductor") else ""
+            row = [act["nombre"], inductor_nombre] + ["" for _ in objetos]
+            data.append(row)
+        columnas = ["Actividad", "Inductor"] + [obj["nombre"] for obj in objetos]
+        df_obj_act = pd.DataFrame(data, columns=columnas)
+        df_obj_act.to_excel(writer, index=False, sheet_name="Objeto-Actividad")
     output.seek(0)
 
     return send_file(
