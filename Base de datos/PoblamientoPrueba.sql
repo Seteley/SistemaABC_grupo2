@@ -5,11 +5,11 @@ INSERT INTO centro (codigo, nombre) VALUES
 ('C002', 'Calidad'),
 ('C003', 'Almacén');
 
--- ACTIVIDADES
-INSERT INTO actividad (codigo, nombre, cod_centro) VALUES
-('A001', 'Preparación de Maquinaria', 'C001'),
-('A002', 'Inspección de Calidad', 'C002'),
-('A003', 'Almacenamiento', 'C003');
+-- ACTIVIDADES (ahora con cod_inductor)
+INSERT INTO actividad (codigo, nombre, cod_centro, cod_inductor) VALUES
+('A001', 'Preparación de Maquinaria', 'C001', 'I001'),
+('A002', 'Inspección de Calidad', 'C002', 'I002'),
+('A003', 'Almacenamiento', 'C003', 'I003');
 
 -- INDUCTORES
 INSERT INTO inductor (codigo, nombre) VALUES
@@ -28,12 +28,6 @@ INSERT INTO recurso_periodo (cod_recurso, fecha_periodo, monto) VALUES
 ('R001', '2025-01-01', 10000.00),
 ('R002', '2025-01-01', 6000.00),
 ('R003', '2025-01-01', 3000.00);
-
--- ACTIVIDAD_INDUCTOR (cantidad de driver usado por actividad)
-INSERT INTO actividad_inductor (cod_actividad, cod_inductor, cantidad, fecha_periodo) VALUES
-('A001', 'I001', 50, '2025-01-01'),
-('A002', 'I002', 120, '2025-01-01'),
-('A003', 'I003', 200, '2025-01-01');
 
 -- ACTIVIDAD_RECURSO (cantidad de recurso consumido por actividad)
 INSERT INTO actividad_recurso (cod_actividad, cod_recurso, cantidad, fecha_periodo) VALUES

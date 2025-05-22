@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS actividad_objeto      CASCADE;
 DROP TABLE IF EXISTS objeto_periodo        CASCADE;
 DROP TABLE IF EXISTS objeto                CASCADE;
-DROP TABLE IF EXISTS inductor_actividad    CASCADE;
 DROP TABLE IF EXISTS recurso_periodo       CASCADE;
 DROP TABLE IF EXISTS recurso               CASCADE;
 DROP TABLE IF EXISTS actividad             CASCADE;
@@ -14,29 +13,19 @@ CREATE TABLE centro (
     nombre VARCHAR(100) NOT NULL
 );
 
--- Actividades (definición base)
+-- Actividades (ahora con cod_inductor)
 CREATE TABLE actividad (
     codigo VARCHAR(50) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    cod_centro VARCHAR(50) NOT NULL REFERENCES centro(codigo)
+    cod_centro VARCHAR(50) NOT NULL REFERENCES centro(codigo),
+    cod_inductor VARCHAR(50) NOT NULL REFERENCES inductor(codigo)
 );
-
 
 -- Inductores
 CREATE TABLE inductor (
     codigo VARCHAR(50) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
-
--- Relación de inductores utilizados por cada actividad
-CREATE TABLE actividad_inductor (
-    cod_actividad VARCHAR(50) NOT NULL REFERENCES actividad(codigo),
-    cod_inductor VARCHAR(50) NOT NULL REFERENCES inductor(codigo),
-    cantidad NUMERIC(14,2) NOT NULL,
-    fecha_periodo DATE NOT NULL,
-    PRIMARY KEY (cod_actividad, cod_inductor, fecha_periodo)
-);
-
 
 -- Recursos (definición base)
 CREATE TABLE recurso (

@@ -448,6 +448,50 @@ function DescargarPlantillaExcel() {
   );
 }
 
+function CargarPlantillaExcel() {
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleUpload = async () => {
+    setError(null);
+    setSuccess(null);
+    if (!file) {
+      setError("Selecciona un archivo Excel");
+      return;
+    }
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("http://127.0.0.1:5000/cargar_plantilla_excel", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Error al cargar la plantilla");
+      const data = await res.json();
+      setSuccess("Datos cargados correctamente para el periodo " + data.periodo);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{marginBottom: 32, border: '1px solid #ccc', padding: 16}}>
+      <h3>Cargar plantilla Excel</h3>
+      <input type="file" accept=".xlsx" onChange={e => setFile(e.target.files?.[0] || null)} />
+      <button onClick={handleUpload} disabled={loading || !file} style={{marginLeft: 8}}>
+        {loading ? "Cargando..." : "Cargar plantilla"}
+      </button>
+      {error && <div style={{ color: "red", marginTop: 12 }}>{error}</div>}
+      {success && <div style={{ color: "green", marginTop: 12 }}>{success}</div>}
+    </div>
+  );
+}
+
 export default function InputTemplatePage() {
   const [inductores, setInductores] = useState<Inductor[]>([]);
 
@@ -463,6 +507,7 @@ export default function InputTemplatePage() {
     <div>
       <h2>Definición de entidades</h2>
       <DescargarPlantillaExcel />
+      <CargarPlantillaExcel />
       <InductorCrud onChange={recargarInductores} />
       <RecursoCrud inductores={inductores} />
       <ActividadCrud inductores={inductores} />
