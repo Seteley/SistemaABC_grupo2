@@ -152,3 +152,36 @@ export async function deleteInductor(id: string) {
   if (!res.ok) throw new Error("Error al eliminar inductor");
   return res.json();
 }
+// Centros
+export async function getCentros() {
+  const res = await fetch(`${API_URL}/centro`);
+  if (!res.ok) throw new Error("Error al obtener centros");
+  return res.json();
+}
+export async function createCentro(data: any) {
+  const res = await fetch(`${API_URL}/centro`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Error al crear centro");
+  return res.json();
+}
+export async function updateCentro(id: string, data: any) {
+  const res = await fetch(`${API_URL}/centro`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data, where: { codigo: id } }),
+  });
+  if (!res.ok) throw new Error("Error al actualizar centro");
+  return res.json();
+}
+export async function deleteCentro(id: string) {
+  const res = await fetch(`${API_URL}/centro`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ codigo: id }),
+  });
+  if (!res.ok) throw new Error("Error al eliminar centro");
+  return res.json();
+}

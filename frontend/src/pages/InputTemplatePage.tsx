@@ -1,6 +1,6 @@
 // src/pages/InputTemplatePage.tsx
 import { useEffect, useState } from "react";
-import { getRecursos, createRecurso, updateRecurso, deleteRecurso, getActividades, createActividad, updateActividad, deleteActividad, getObjetos, createObjeto, updateObjeto, deleteObjeto, getInductores, createInductor, updateInductor, deleteInductor } from "../api/abcApi";
+import { getRecursos, createRecurso, updateRecurso, deleteRecurso, getActividades, createActividad, updateActividad, deleteActividad, getObjetos, createObjeto, updateObjeto, deleteObjeto, getInductores, createInductor, updateInductor, deleteInductor, getCentros, createCentro, updateCentro, deleteCentro } from "../api/abcApi";
 import dayjs from "dayjs";
 
 // Puedes ajustar estos nombres según tus tablas reales
@@ -15,6 +15,7 @@ type Inductor = { codigo: string; nombre: string };
 type Recurso = { codigo: string; nombre: string; cod_prorrateo: string };
 type Actividad = { codigo: string; nombre: string; cod_centro?: string; cod_inductor?: string };
 type Objeto = { codigo: string; nombre: string };
+type Centro = { codigo: string; nombre: string };
 
 function InductorCrud({ onChange }: { onChange?: () => void }) {
   const [data, setData] = useState<Inductor[]>([]);
@@ -201,8 +202,93 @@ function RecursoCrud({ inductores }: { inductores: Inductor[] }) {
   );
 }
 
+function CentroCrud() {
+  const [data, setData] = useState<Centro[]>([]);
+  const [nuevo, setNuevo] = useState<Partial<Centro>>({});
+  const [editando, setEditando] = useState<string | null>(null);
+  const [editData, setEditData] = useState<Partial<Centro>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getCentros().then(setData).catch(e => setError(e.message));
+  }, []);
+
+  const recargar = async () => setData(await getCentros());
+
+  const handleCreate = async () => {
+    setError(null);
+    try {
+      await createCentro(nuevo);
+      setNuevo({});
+      await recargar();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+  const handleUpdate = async (id: string) => {
+    setError(null);
+    try {
+      await updateCentro(id, editData);
+      setEditando(null);
+      setEditData({});
+      await recargar();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+  const handleDelete = async (id: string) => {
+    setError(null);
+    try {
+      await deleteCentro(id);
+      await recargar();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+  return (
+    <div style={{ marginBottom: 32, border: '1px solid #ccc', padding: 16 }}>
+      <h3>Centros de Actividad</h3>
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+      <table border={1} cellPadding={6}>
+        <thead>
+          <tr>
+            <th>codigo</th>
+            <th>nombre</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map(row => (
+            <tr key={row.codigo}>
+              <td>{editando === row.codigo ? <input value={editData.codigo ?? row.codigo} onChange={e => setEditData(ed => ({ ...ed, codigo: e.target.value }))} /> : row.codigo}</td>
+              <td>{editando === row.codigo ? <input value={editData.nombre ?? row.nombre} onChange={e => setEditData(ed => ({ ...ed, nombre: e.target.value }))} /> : row.nombre}</td>
+              <td>
+                {editando === row.codigo
+                  ? <>
+                      <button onClick={() => handleUpdate(row.codigo)}>Guardar</button>
+                      <button onClick={() => setEditando(null)}>Cancelar</button>
+                    </>
+                  : <>
+                      <button onClick={() => { setEditando(row.codigo); setEditData(row); }}>Editar</button>
+                      <button onClick={() => handleDelete(row.codigo)}>Eliminar</button>
+                    </>}
+              </td>
+            </tr>
+          ))}
+          <tr>
+            <td><input value={nuevo.codigo ?? ''} onChange={e => setNuevo(n => ({ ...n, codigo: e.target.value }))} /></td>
+            <td><input value={nuevo.nombre ?? ''} onChange={e => setNuevo(n => ({ ...n, nombre: e.target.value }))} /></td>
+            <td><button onClick={handleCreate}>Agregar</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function ActividadCrud({ inductores }: { inductores: Inductor[] }) {
   const [data, setData] = useState<Actividad[]>([]);
+  const [centros, setCentros] = useState<Centro[]>([]);
   const [nuevo, setNuevo] = useState<Partial<Actividad>>({});
   const [editando, setEditando] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Actividad>>({});
@@ -210,6 +296,7 @@ function ActividadCrud({ inductores }: { inductores: Inductor[] }) {
 
   useEffect(() => {
     getActividades().then(setData).catch(e => setError(e.message));
+    getCentros().then(setCentros).catch(() => {});
   }, []);
 
   const recargar = async () => setData(await getActividades());
@@ -253,6 +340,7 @@ function ActividadCrud({ inductores }: { inductores: Inductor[] }) {
           <tr>
             <th>codigo</th>
             <th>nombre</th>
+            <th>Centro</th>
             <th>Inductor</th>
             <th>Acciones</th>
           </tr>
@@ -263,7 +351,14 @@ function ActividadCrud({ inductores }: { inductores: Inductor[] }) {
               <td>{editando === row.codigo ? <input value={editData.codigo ?? row.codigo} onChange={e => setEditData(ed => ({ ...ed, codigo: e.target.value }))} /> : row.codigo}</td>
               <td>{editando === row.codigo ? <input value={editData.nombre ?? row.nombre} onChange={e => setEditData(ed => ({ ...ed, nombre: e.target.value }))} /> : row.nombre}</td>
               <td>{editando === row.codigo
-                ? <select value={editData.cod_inductor ?? ''} onChange={e => setEditData(ed => ({ ...ed, cod_inductor: e.target.value }))}>
+                ? <select value={editData.cod_centro ?? row.cod_centro ?? ''} onChange={e => setEditData(ed => ({ ...ed, cod_centro: e.target.value }))}>
+                    <option value="">Seleccione...</option>
+                    {centros.map(c => <option key={c.codigo} value={c.codigo}>{c.nombre}</option>)}
+                  </select>
+                : (centros.find(c => c.codigo === row.cod_centro)?.nombre || row.cod_centro || '')}
+              </td>
+              <td>{editando === row.codigo
+                ? <select value={editData.cod_inductor ?? row.cod_inductor ?? ''} onChange={e => setEditData(ed => ({ ...ed, cod_inductor: e.target.value }))}>
                     <option value="">Seleccione...</option>
                     {inductores.map(ind => <option key={ind.codigo} value={ind.codigo}>{ind.nombre}</option>)}
                   </select>
@@ -285,6 +380,12 @@ function ActividadCrud({ inductores }: { inductores: Inductor[] }) {
           <tr>
             <td><input value={nuevo.codigo ?? ''} onChange={e => setNuevo(n => ({ ...n, codigo: e.target.value }))} /></td>
             <td><input value={nuevo.nombre ?? ''} onChange={e => setNuevo(n => ({ ...n, nombre: e.target.value }))} /></td>
+            <td>
+              <select value={nuevo.cod_centro ?? ''} onChange={e => setNuevo(n => ({ ...n, cod_centro: e.target.value }))}>
+                <option value="">Seleccione...</option>
+                {centros.map(c => <option key={c.codigo} value={c.codigo}>{c.nombre}</option>)}
+              </select>
+            </td>
             <td>
               <select value={nuevo.cod_inductor ?? ''} onChange={e => setNuevo(n => ({ ...n, cod_inductor: e.target.value }))}>
                 <option value="">Seleccione...</option>
@@ -494,10 +595,12 @@ function CargarPlantillaExcel() {
 
 export default function InputTemplatePage() {
   const [inductores, setInductores] = useState<Inductor[]>([]);
+  const [centros, setCentros] = useState<Centro[]>([]);
 
-  // Recargar inductores para los selects
+  // Recargar inductores y centros para los selects
   const recargarInductores = async () => {
     setInductores(await getInductores());
+    setCentros(await getCentros());
   };
   useEffect(() => {
     recargarInductores();
@@ -509,6 +612,7 @@ export default function InputTemplatePage() {
       <DescargarPlantillaExcel />
       <CargarPlantillaExcel />
       <InductorCrud onChange={recargarInductores} />
+      <CentroCrud />
       <RecursoCrud inductores={inductores} />
       <ActividadCrud inductores={inductores} />
       <ObjetoCrud />
