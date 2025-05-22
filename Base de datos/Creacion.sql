@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS recurso               CASCADE;
 DROP TABLE IF EXISTS actividad             CASCADE;
 DROP TABLE IF EXISTS inductor              CASCADE;
 DROP TABLE IF EXISTS centro                CASCADE;
+DROP TABLE IF EXISTS actividad_recurso                CASCADE;
+DROP TABLE IF EXISTS objeto_actividad                CASCADE;
 
 -- Tabla de centros
 CREATE TABLE centro (
@@ -13,18 +15,20 @@ CREATE TABLE centro (
     nombre VARCHAR(100) NOT NULL
 );
 
+
+-- Inductores
+CREATE TABLE inductor (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
+
+
 -- Actividades (ahora con cod_inductor)
 CREATE TABLE actividad (
     codigo VARCHAR(50) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     cod_centro VARCHAR(50) NOT NULL REFERENCES centro(codigo),
     cod_inductor VARCHAR(50) NOT NULL REFERENCES inductor(codigo)
-);
-
--- Inductores
-CREATE TABLE inductor (
-    codigo VARCHAR(50) PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
 );
 
 -- Recursos (definición base)
@@ -75,3 +79,15 @@ CREATE TABLE recurso_periodo (
     monto NUMERIC(14,2) NOT NULL,
     PRIMARY KEY (cod_recurso, fecha_periodo)
 );
+
+INSERT INTO objeto (codigo, nombre) VALUES
+('OBJ-LATEX-CPP', 'Pintura Látex CPP'),
+('OBJ-ESMALTE-VENCEDOR', 'Esmalte Sintético Vencedor'),
+('OBJ-ANTICORROSIVO-TEKNO', 'Anticorrosivo Tekno'),
+('OBJ-BARNIZ-PARACAS', 'Barniz Paracas'),
+('OBJ-PINTURA-JET', 'Pintura Marina Jet'),
+('OBJ-ADHESIVO-CPP', 'Adhesivo Industrial CPP'),
+('OBJ-SELLADOR-CPP', 'Sellador CPP'),
+('OBJ-PASTA-FINA', 'Pasta Fina CPP'),
+('OBJ-IMPRIMANTE-CPP', 'Imprimante CPP'),
+('OBJ-TEMPLE-PATO', 'Temple Pato');

@@ -1,0 +1,67 @@
+INSERT INTO inductor (codigo, nombre) VALUES
+('IND-HH-RECEPCION', 'Horas hombre en recepción de materias primas'),
+('IND-HORAS-EQUIPOS-INSPECCION', 'Horas de uso de equipos de inspección'),
+('IND-REGISTROS-INVENTARIO', 'Cantidad de ingresos registrados en sistema'),
+('IND-M2-ALMACEN', 'Metros cuadrados ocupados en almacén de materias primas'),
+('IND-HH-ALMACEN', 'Horas hombre del personal de almacén'),
+('IND-KWH-ALMACEN', 'Kilovatios consumidos por sistemas de almacenamiento'),
+('IND-HH-FORMULACION', 'Horas hombre en formulación y dosificación'),
+('IND-HORAS-DOSIFICADORES', 'Horas de uso de equipos de dosificación'),
+('IND-HORAS-REACTORES', 'Horas de uso de reactores y tanques'),
+('IND-ENERGIA-PROCESO', 'Energía consumida en mezcla y reacción'),
+('IND-HH-MEZCLADO', 'Horas hombre en procesos de mezcla y reacción'),
+('IND-HORAS-FILTROS', 'Horas de operación de sistemas de filtrado'),
+('IND-LOTES-FILTRADOS', 'Cantidad de lotes filtrados'),
+('IND-HH-ENVASADO', 'Horas hombre en envasado y etiquetado'),
+('IND-UNIDADES-ENVASADAS', 'Unidades de producto envasadas'),
+('IND-ANALISIS-CALIDAD', 'Cantidad de análisis de control de calidad final'),
+('IND-HORAS-LABORATORIO', 'Horas de uso de equipos de laboratorio'),
+('IND-PEDIDOS-DESPACHO', 'Número de pedidos preparados y despachados'),
+('IND-KM-LOGISTICA', 'Kilómetros recorridos en distribución'),
+('IND-HH-SEGURIDAD', 'Horas hombre en seguridad y gestión ambiental'),
+('IND-PERSONAS-EXPUESTAS', 'Número de trabajadores expuestos o gestionados');
+
+INSERT INTO recurso (codigo, nombre, cod_prorrateo) VALUES
+('REC-RH-RECEPCION', 'Personal de recepción e inspección', 'IND-HH-RECEPCION'),
+('REC-EQ-INSPECCION', 'Equipos de inspección de materias primas', 'IND-HORAS-EQUIPOS-INSPECCION'),
+('REC-SW-INVENTARIO', 'Software de gestión de inventario', 'IND-REGISTROS-INVENTARIO'),
+('REC-INFRA-ALMACEN-MP', 'Espacio físico para materias primas', 'IND-M2-ALMACEN'),
+('REC-RH-ALMACEN', 'Personal del almacén de materias primas', 'IND-HH-ALMACEN'),
+('REC-ENERGIA-ALMACEN', 'Energía eléctrica en almacén', 'IND-KWH-ALMACEN'),
+('REC-RH-FORMULACION', 'Personal técnico de formulación', 'IND-HH-FORMULACION'),
+('REC-EQ-DOSIFICACION', 'Equipos de dosificación', 'IND-HORAS-DOSIFICADORES'),
+('REC-EQ-REACTORES', 'Reactores y tanques de mezcla', 'IND-HORAS-REACTORES'),
+('REC-ENERGIA-PROCESO', 'Energía en procesos químicos', 'IND-ENERGIA-PROCESO'),
+('REC-RH-MEZCLADO', 'Operarios en mezcla y reacción', 'IND-HH-MEZCLADO'),
+('REC-EQ-FILTRADO', 'Equipos de filtración', 'IND-HORAS-FILTROS'),
+('REC-MAT-FILTRANTES', 'Materiales filtrantes', 'IND-LOTES-FILTRADOS'),
+('REC-RH-ENVASADO', 'Personal de envasado y etiquetado', 'IND-HH-ENVASADO'),
+('REC-MAT-ENVASES', 'Envases y etiquetas', 'IND-UNIDADES-ENVASADAS'),
+('REC-RH-CALIDAD', 'Personal de laboratorio de calidad', 'IND-ANALISIS-CALIDAD'),
+('REC-EQ-LABORATORIO', 'Equipos de laboratorio', 'IND-HORAS-LABORATORIO'),
+('REC-RH-LOGISTICA', 'Personal de logística y despacho', 'IND-PEDIDOS-DESPACHO'),
+('REC-TRANSPORTE', 'Vehículos y combustible', 'IND-KM-LOGISTICA'),
+('REC-RH-SEGURIDAD', 'Personal de seguridad industrial', 'IND-HH-SEGURIDAD'),
+('REC-EPP-SISTEMAS', 'Equipos de protección y control ambiental', 'IND-PERSONAS-EXPUESTAS');
+
+-- Centros de costos relacionados al proceso productivo químico
+INSERT INTO centro (codigo, nombre) VALUES
+('CENTRO-01', 'Recepción y almacenamiento de materias primas'),
+('CENTRO-02', 'Formulación y mezcla química'),
+('CENTRO-03', 'Filtrado y purificación'),
+('CENTRO-04', 'Envasado y etiquetado'),
+('CENTRO-05', 'Control de calidad'),
+('CENTRO-06', 'Almacenamiento y despacho de producto terminado'),
+('CENTRO-07', 'Gestión ambiental y seguridad industrial');
+
+INSERT INTO actividad (codigo, nombre, cod_centro, cod_inductor) VALUES
+('ACT-RECEPCION', 'Recepción y control de materias primas', 'CENTRO-01', 'IND-HH-RECEPCION'),
+('ACT-ALMACENAMIENTO-MP', 'Almacenamiento de materias primas', 'CENTRO-01', 'IND-M2-ALMACEN'),
+('ACT-FORMULACION', 'Formulación y dosificación', 'CENTRO-02', 'IND-HH-FORMULACION'),
+('ACT-MEZCLADO', 'Mezclado y reacción química', 'CENTRO-02', 'IND-HORAS-REACTORES'),
+('ACT-FILTRADO', 'Filtrado y purificación', 'CENTRO-03', 'IND-LOTES-FILTRADOS'),
+('ACT-ENVASADO', 'Envasado y etiquetado', 'CENTRO-04', 'IND-UNIDADES-ENVASADAS'),
+('ACT-CALIDAD-FINAL', 'Control de calidad final', 'CENTRO-05', 'IND-ANALISIS-CALIDAD'),
+('ACT-ALMACENAMIENTO-PROD', 'Almacenamiento y despacho de producto', 'CENTRO-06', 'IND-PEDIDOS-DESPACHO'),
+('ACT-SEGURIDAD-AMBIENTE', 'Gestión ambiental y seguridad industrial', 'CENTRO-07', 'IND-HH-SEGURIDAD');
+
