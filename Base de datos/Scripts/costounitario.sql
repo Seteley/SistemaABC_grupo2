@@ -69,7 +69,7 @@ costo_total_objeto AS (
 SELECT
     cto.cod_objeto,
     cto.nombre_objeto,
-    cto.fecha_periodo,
+    --cto.fecha_periodo,
     cto.costo_total_objeto,
     op.cantidad AS cantidad_objeto,
     ROUND(cto.costo_total_objeto / NULLIF(op.cantidad, 0), 2) AS costo_unitario
