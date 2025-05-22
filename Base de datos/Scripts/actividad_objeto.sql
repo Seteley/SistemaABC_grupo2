@@ -29,6 +29,7 @@ costo_actividad AS (
     WHERE ar.fecha_periodo = '2025-01-01'
     GROUP BY ar.cod_actividad, a.nombre, ar.cod_recurso, r.nombre, ar.fecha_periodo
 ),
+-- Paso 2: Repartir el costo de cada actividad a los objetos de costo según la cantidad de objeto_actividad
 total_actividad_objeto AS (
     SELECT
         oa.cod_actividad,
@@ -37,42 +38,21 @@ total_actividad_objeto AS (
     FROM objeto_actividad oa
     WHERE oa.fecha_periodo = '2025-01-01'
     GROUP BY oa.cod_actividad, oa.fecha_periodo
-),
-costo_objeto_actividad AS (
-    SELECT
-        oa.cod_objeto,
-        o.nombre AS nombre_objeto,
-        ca.cod_actividad,
-        ca.nombre_actividad,
-        ca.cod_recurso,
-        ca.nombre_recurso,
-        ROUND(
-            ca.costo_total_actividad * (oa.cantidad / NULLIF(tao.total_cantidad_actividad, 0)),
-            2
-        ) AS costo_asignado_objeto,
-        oa.fecha_periodo
-    FROM objeto_actividad oa
-    JOIN total_actividad_objeto tao ON oa.cod_actividad = tao.cod_actividad AND oa.fecha_periodo = tao.fecha_periodo
-    JOIN costo_actividad ca ON oa.cod_actividad = ca.cod_actividad AND oa.fecha_periodo = ca.fecha_periodo
-    JOIN objeto o ON oa.cod_objeto = o.codigo
-    WHERE oa.fecha_periodo = '2025-01-01'
-),
-costo_total_objeto AS (
-    SELECT
-        cod_objeto,
-        nombre_objeto,
-        fecha_periodo,
-        SUM(costo_asignado_objeto) AS costo_total_objeto
-    FROM costo_objeto_actividad
-    GROUP BY cod_objeto, nombre_objeto, fecha_periodo
 )
 SELECT
-    cto.cod_objeto,
-    cto.nombre_objeto,
-    cto.fecha_periodo,
-    cto.costo_total_objeto,
-    op.cantidad AS cantidad_objeto,
-    ROUND(cto.costo_total_objeto / NULLIF(op.cantidad, 0), 2) AS costo_unitario
-FROM costo_total_objeto cto
-JOIN objeto_periodo op ON cto.cod_objeto = op.cod_objeto AND cto.fecha_periodo = op.fecha_periodo
-ORDER BY cto.cod_objeto;
+    oa.cod_objeto,
+    o.nombre AS nombre_objeto,
+    ca.cod_actividad,
+    ca.nombre_actividad,
+    ca.cod_recurso,
+    ca.nombre_recurso,
+    ROUND(
+        ca.costo_total_actividad * (oa.cantidad / NULLIF(tao.total_cantidad_actividad, 0)),
+        2
+    ) AS costo_asignado_objeto
+FROM objeto_actividad oa
+JOIN total_actividad_objeto tao ON oa.cod_actividad = tao.cod_actividad AND oa.fecha_periodo = tao.fecha_periodo
+JOIN costo_actividad ca ON oa.cod_actividad = ca.cod_actividad AND oa.fecha_periodo = ca.fecha_periodo
+JOIN objeto o ON oa.cod_objeto = o.codigo
+WHERE oa.fecha_periodo = '2025-01-01'
+ORDER BY oa.cod_objeto, ca.cod_actividad, ca.cod_recurso;

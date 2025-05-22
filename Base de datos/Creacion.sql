@@ -1,64 +1,88 @@
--- CENTROS DE COSTO
-INSERT INTO centro (codigo, nombre) VALUES
-('C001', 'Centro de Producción'),
-('C002', 'Centro de Logística');
+DROP TABLE IF EXISTS actividad_objeto      CASCADE;
+DROP TABLE IF EXISTS objeto_periodo        CASCADE;
+DROP TABLE IF EXISTS objeto                CASCADE;
+DROP TABLE IF EXISTS inductor_actividad    CASCADE;
+DROP TABLE IF EXISTS recurso_periodo       CASCADE;
+DROP TABLE IF EXISTS recurso               CASCADE;
+DROP TABLE IF EXISTS actividad             CASCADE;
+DROP TABLE IF EXISTS inductor              CASCADE;
+DROP TABLE IF EXISTS centro                CASCADE;
 
--- ACTIVIDADES
-INSERT INTO actividad (codigo, nombre, cod_centro) VALUES
-('A001', 'Corte de Material', 'C001'),
-('A002', 'Empaque Final', 'C001'),
-('A003', 'Distribución', 'C002');
+-- Tabla de centros
+CREATE TABLE centro (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
 
--- INDUCTORES
-INSERT INTO inductor (codigo, nombre) VALUES
-('I001', 'Horas Máquina'),
-('I002', 'Número de Unidades');
+-- Actividades (definición base)
+CREATE TABLE actividad (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    cod_centro VARCHAR(50) NOT NULL REFERENCES centro(codigo)
+);
 
--- RECURSOS
-INSERT INTO recurso (codigo, nombre, cod_prorrateo) VALUES
-('R001', 'Energía Eléctrica', 'I001'),
-('R002', 'Material de Empaque', 'I002');
 
--- RECURSOS POR PERÍODO
-INSERT INTO recurso_periodo (cod_recurso, fecha_periodo, monto) VALUES
-('R001', '2024-12-01', 2000.00),
-('R002', '2024-12-01', 1500.00);
+-- Inductores
+CREATE TABLE inductor (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
 
--- INDUCTOR EN CENTROS (Cantidad disponible por centro y período)
--- Inductor I001 usado en 1 centro para Producto A y en 2 centros para Producto B
-INSERT INTO inductor_centro (cod_inductor, cod_centro, cantidad_inductor, fecha_periodo) VALUES
--- Para Producto A (solo un centro)
-('I001', 'C001', 100.00, '2024-12-01'),
+-- Relación de inductores utilizados por cada actividad
+CREATE TABLE actividad_inductor (
+    cod_actividad VARCHAR(50) NOT NULL REFERENCES actividad(codigo),
+    cod_inductor VARCHAR(50) NOT NULL REFERENCES inductor(codigo),
+    cantidad NUMERIC(14,2) NOT NULL,
+    fecha_periodo DATE NOT NULL,
+    PRIMARY KEY (cod_actividad, cod_inductor, fecha_periodo)
+);
 
--- Para Producto B (dos centros)
-('I001', 'C001', 70.00, '2024-12-01'),
-('I001', 'C002', 30.00, '2024-12-01'),
 
-('I002', 'C002', 500.00, '2024-12-01'); -- No cambia para I002
+-- Recursos (definición base)
+CREATE TABLE recurso (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    cod_prorrateo VARCHAR(50) NOT NULL REFERENCES inductor(codigo)
+);
 
--- PORCENTAJE DEL INDUCTOR UTILIZADO EN CADA ACTIVIDAD
--- Añadí actividad A003 para el centro C002
-INSERT INTO inductor_actividad (cod_actividad, cod_inductor, porcentaje, fecha_periodo) VALUES
-('A001', 'I001', 100.00, '2024-12-01'), -- Corte de Material usa I001 en C001 para Producto A
-('A002', 'I001', 60.00, '2024-12-01'),  -- Empaque Final usa I001 parcialmente (porcentaje puede ser menos de 100)
-('A003', 'I001', 40.00, '2024-12-01'),  -- Distribución usa I001 en otro centro
-('A002', 'I002', 100.00, '2024-12-01');
 
--- OBJETOS DE COSTO
-INSERT INTO objeto (codigo, nombre) VALUES
-('O001', 'Producto A'),
-('O002', 'Producto B');
+-- Relación de recursos consumidos por cada actividad
+CREATE TABLE actividad_recurso (
+    cod_actividad VARCHAR(50) NOT NULL REFERENCES actividad(codigo),
+    cod_recurso VARCHAR(50) NOT NULL REFERENCES recurso(codigo),
+    cantidad NUMERIC(14,2) NOT NULL, -- cantidad consumida del recurso por la actividad
+    fecha_periodo DATE NOT NULL,
+    PRIMARY KEY (cod_actividad, cod_recurso, fecha_periodo)
+);
 
--- OBJETOS DE COSTO POR PERÍODO (cantidad producida)
-INSERT INTO objeto_periodo (cod_objeto, fecha_periodo, cantidad) VALUES
-('O001', '2024-12-01', 200),
-('O002', '2024-12-01', 300);
+-- Objetos de costo (definición base)
+CREATE TABLE objeto (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
 
--- DISTRIBUCIÓN DE ACTIVIDADES A OBJETOS
-INSERT INTO actividad_objeto (cod_actividad, cod_objeto, porcentaje, fecha_periodo) VALUES
--- Producto A solo usa el inductor I001 en 1 centro (actividad A001)
-('A001', 'O001', 100.00, '2024-12-01'),
+-- Relación de actividades que componen cada objeto de costo
+CREATE TABLE objeto_actividad (
+    cod_objeto VARCHAR(50) NOT NULL REFERENCES objeto(codigo),
+    cod_actividad VARCHAR(50) NOT NULL REFERENCES actividad(codigo),
+    cantidad NUMERIC(14,2) NOT NULL, -- cantidad de la actividad asignada al objeto
+    fecha_periodo DATE NOT NULL,
+    PRIMARY KEY (cod_objeto, cod_actividad, fecha_periodo)
+);
 
--- Producto B usa actividades en 2 centros (A002 y A003)
-('A002', 'O002', 60.00, '2024-12-01'),
-('A003', 'O002', 40.00, '2024-12-01');
+
+
+-- Cantidad de objetos de costo por período
+CREATE TABLE objeto_periodo (
+    cod_objeto VARCHAR(50) NOT NULL REFERENCES objeto(codigo),
+    fecha_periodo DATE NOT NULL,
+    cantidad INT NOT NULL,
+    PRIMARY KEY (cod_objeto, fecha_periodo)
+);
+
+CREATE TABLE recurso_periodo (
+    cod_recurso VARCHAR(50) NOT NULL REFERENCES recurso(codigo),
+    fecha_periodo DATE NOT NULL,
+    monto NUMERIC(14,2) NOT NULL,
+    PRIMARY KEY (cod_recurso, fecha_periodo)
+);
