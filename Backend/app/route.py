@@ -11,7 +11,9 @@ from .funcion import (
 
 main_bp = Blueprint("main", __name__)
 
-
+@main_bp.route('/favicon.ico')
+def favicon():
+    return '', 204  # No Content
 
 
 # CREATE
